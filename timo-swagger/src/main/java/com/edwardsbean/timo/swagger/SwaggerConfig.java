@@ -1,4 +1,4 @@
-package com.edwardsbean.timo;
+package com.edwardsbean.timo.swagger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -8,14 +8,18 @@ import com.mangofactory.swagger.configuration.SpringSwaggerConfig;
 import com.mangofactory.swagger.models.dto.ApiInfo;
 import com.mangofactory.swagger.plugin.EnableSwagger;
 import com.mangofactory.swagger.plugin.SwaggerSpringMvcPlugin;
+
 /**
- * 用于加载swagger相关类
+ * swagger相关配置，用于加载swagger相关类
  * Created by edwardsbean on 2015/4/7.
  */
 @Configuration
 @EnableSwagger
-public class SwaggerConfig
-{
+public class SwaggerConfig {
+
+    private String projectDescription;
+    private String projectName;
+    private String email;
 
     private SpringSwaggerConfig springSwaggerConfig;
 
@@ -23,8 +27,7 @@ public class SwaggerConfig
      * Required to autowire SpringSwaggerConfig
      */
     @Autowired
-    public void setSpringSwaggerConfig(SpringSwaggerConfig springSwaggerConfig)
-    {
+    public void setSpringSwaggerConfig(SpringSwaggerConfig springSwaggerConfig) {
         this.springSwaggerConfig = springSwaggerConfig;
     }
 
@@ -34,19 +37,30 @@ public class SwaggerConfig
      * multiple swagger resource listings.
      */
     @Bean
-    public SwaggerSpringMvcPlugin customImplementation()
-    {
+    public SwaggerSpringMvcPlugin customImplementation() {
         return new SwaggerSpringMvcPlugin(this.springSwaggerConfig).apiInfo(apiInfo()).includePatterns(
                 ".*?");
     }
 
-    private ApiInfo apiInfo()
-    {
+
+    public void setProjectDescription(String projectDescription) {
+        this.projectDescription = projectDescription;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    private ApiInfo apiInfo() {
         ApiInfo apiInfo = new ApiInfo(
-                "工程在线文档标题",
-                "工程在线文档描述",
+                projectName,
+                projectDescription,
                 "My Apps API terms of service",
-                "邮箱",
+                email,
                 "My Apps API Licence Type",
                 "My Apps API License URL");
         return apiInfo;
