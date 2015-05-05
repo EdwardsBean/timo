@@ -7,7 +7,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import java.lang.reflect.Method;
 
 /**
- * Created by edwardsbean on 2015/5/2 0002.
+ * @author: edwardsbean
+ * @date: 2015/5/2 0002.
  */
 public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
     @Override

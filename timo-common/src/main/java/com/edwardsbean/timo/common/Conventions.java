@@ -49,4 +49,8 @@ public class Conventions {
      * 运行模式：生产模式
      */
     public static final String MODE_PROD             = "prod";
+    /**
+     * HTTP头中存放客户端版本号
+     */
+    public static final String VERSION              = "VERSION";
 }
