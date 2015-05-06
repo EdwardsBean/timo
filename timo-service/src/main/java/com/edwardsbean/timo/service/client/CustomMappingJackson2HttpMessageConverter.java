@@ -1,17 +1,13 @@
 package com.edwardsbean.timo.service.client;
 
-import com.edwardsbean.timo.common.pagination.Paginator;
-import com.edwardsbean.timo.service.client.serialization.PaginatorJsonDeserializer;
-import com.edwardsbean.timo.service.client.serialization.PaginatorJsonSerializer;
+import com.edwardsbean.timo.common.Conventions;
+import com.edwardsbean.timo.common.JsonUtil;
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
@@ -19,16 +15,20 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StreamUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -36,37 +36,44 @@ import java.util.Arrays;
  *
  */
 public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private String       charset      = "UTF-8";
+    private ObjectMapper objectMapper = JsonUtil.createObjectMapper();
+    private String charset = "UTF-8";
+    private List<MediaType> additionalMediaTypes = new ArrayList<MediaType>();
 
     /**
      * 添加UTF-8和指定编码支持
      */
     public CustomMappingJackson2HttpMessageConverter(String charset) {
         if (!Charset.isSupported(charset)) {
-            throw new IllegalCharsetNameException("The given charset " + charset
-                    + " is not supported!!");
+            throw new IllegalCharsetNameException("The given charset " + charset + " is not supported!!");
         }
         if (StringUtils.equalsIgnoreCase(charset, this.charset)) {
-            setSupportedMediaTypes(Arrays.asList(new MediaType("application", "json",
-                    DEFAULT_CHARSET), new MediaType("application", "*+json", DEFAULT_CHARSET)));
+            setSupportedMediaTypes(Arrays.asList(new MediaType("application", "json", DEFAULT_CHARSET),
+                    new MediaType("application", "*+json", DEFAULT_CHARSET)));
         } else {
             this.charset = charset;
-            setSupportedMediaTypes(
-                    Arrays.asList(new MediaType("application", "json", Charset.forName(charset)),
-                            new MediaType("application", "*+json", Charset.forName(charset)),
-                            new MediaType("application", "json", DEFAULT_CHARSET),
-                            new MediaType("application", "*+json", DEFAULT_CHARSET)));
+            setSupportedMediaTypes(Arrays.asList(new MediaType("application", "json", Charset.forName(charset)),
+                    new MediaType("application", "*+json", Charset.forName(charset)),
+                    new MediaType("application", "json", DEFAULT_CHARSET),
+                    new MediaType("application", "*+json", DEFAULT_CHARSET)));
         }
-        configObjectmapper();
     }
 
     @Override
     public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
             throws IOException, HttpMessageNotReadableException {
-
         JavaType javaType = getJavaType(type, contextClass);
-        return readJavaType(javaType, inputMessage);
+        Object object = readJavaType(javaType, inputMessage);
+        //TODO:添加更多Header转换
+        String version = inputMessage.getHeaders().getFirst(Conventions.VERSION);
+        if (version != null) {
+            Field versionField = ReflectionUtils.findField(javaType.getRawClass(), "version");
+            if (versionField != null) {
+                ReflectionUtils.makeAccessible(versionField);
+                ReflectionUtils.setField(versionField, object, "1.0.0");
+            }
+        }
+        return object;
     }
 
     @Override
@@ -83,8 +90,7 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         outputMessage.getBody();
         JsonEncoding encoding = getJsonEncoding(outputMessage.getHeaders().getContentType());
-        JsonGenerator jsonGenerator = this.objectMapper.getFactory()
-                .createGenerator(baos, encoding);
+        JsonGenerator jsonGenerator = this.objectMapper.getFactory().createGenerator(baos, encoding);
 
         if (this.objectMapper.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jsonGenerator.useDefaultPrettyPrinter();
@@ -92,11 +98,9 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
 
         try {
             this.objectMapper.writeValue(jsonGenerator, object);
-            outputMessage.getBody().write(
-                    new String(baos.toByteArray(), DEFAULT_CHARSET).getBytes(this.charset));
+            outputMessage.getBody().write(new String(baos.toByteArray(), DEFAULT_CHARSET).getBytes(this.charset));
         } catch (JsonProcessingException ex) {
-            throw new HttpMessageNotWritableException("Could not write JSON: " + ex.getMessage(),
-                    ex);
+            throw new HttpMessageNotWritableException("Could not write JSON: " + ex.getMessage(), ex);
         }
     }
 
@@ -106,8 +110,8 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
             MediaType mediaType = inputMessage.getHeaders().getContentType();
 
             // 如果明确指定了UTF-8，使用默认编码
-            if (mediaType.getCharSet() != null && StringUtils
-                    .equals(DEFAULT_CHARSET.name(), mediaType.getCharSet().name())) {
+            if (mediaType.getCharSet() != null &&
+                    StringUtils.equals(DEFAULT_CHARSET.name(), mediaType.getCharSet().name())) {
                 return this.objectMapper.readValue(is, javaType);
             } else {
                 byte[] contents = StreamUtils.copyToByteArray(is);
@@ -116,23 +120,22 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
                 return this.objectMapper.readValue(bais, javaType);
             }
         } catch (IOException ex) {
-            throw new HttpMessageNotReadableException("Could not read JSON: " + ex.getMessage(),
-                    ex);
+            throw new HttpMessageNotReadableException("Could not read JSON: " + ex.getMessage(), ex);
         }
     }
 
     /**
-     * 添加对Money和Paginator的序列化支持
+     * 追加额外支持的MediaType
      */
-    private void configObjectmapper() {
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(Paginator.class, new PaginatorJsonSerializer());
-        module.addDeserializer(Paginator.class, new PaginatorJsonDeserializer());
-        objectMapper.registerModule(module);
-
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, false);
-        objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true) ;
+    public void setAdditionalMediaTypes(List<MediaType> additionalMediaTypes) {
+        this.additionalMediaTypes = additionalMediaTypes;
+        if (additionalMediaTypes != null && !additionalMediaTypes.isEmpty()) {
+            List<MediaType> mediaTypes = new ArrayList<MediaType>(getSupportedMediaTypes());
+            for (MediaType t : additionalMediaTypes) {
+                mediaTypes.add(t);
+            }
+            setSupportedMediaTypes(mediaTypes);
+        }
     }
 
     public String getCharset() {
@@ -147,3 +150,4 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
         this.objectMapper = objectMapper;
     }
 }
+
