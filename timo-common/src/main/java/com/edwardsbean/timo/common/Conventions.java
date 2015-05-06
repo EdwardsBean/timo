@@ -49,4 +49,6 @@ public class Conventions {
      * 运行模式：生产模式
      */
     public static final String MODE_PROD             = "prod";
+
+    public static final String VERSION              = "version";
 }

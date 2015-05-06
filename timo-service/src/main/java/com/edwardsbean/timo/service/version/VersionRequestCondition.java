@@ -1,5 +1,6 @@
 package com.edwardsbean.timo.service.version;
 
+import com.edwardsbean.timo.common.Conventions;
 import com.edwardsbean.timo.common.VersionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
@@ -14,6 +15,10 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
     public static final String VERSION = "version";
     public static final String VERSION_PREFIX = "v";
     private final VersionExpression versionExpression;
+
+    public VersionExpression getVersionExpression() {
+        return versionExpression;
+    }
 
     public VersionRequestCondition(String version) {
         this.versionExpression = new VersionExpression(version);
@@ -57,6 +62,10 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
     static class VersionExpression {
         private final String version;
 
+        public String getVersion() {
+            return version;
+        }
+
         public VersionExpression(String version) {
             this.version = delPrefix(version);
         }
@@ -69,9 +78,9 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
             return result;
         }
         public boolean match(HttpServletRequest request) {
-            String clientVersion = WebUtils.findParameterValue(request, VERSION);
+            String clientVersion = request.getHeader(Conventions.VERSION);
             clientVersion = delPrefix(clientVersion);
-            return clientVersion != null && VersionUtil.compare(clientVersion,version) >= 0;
+            return clientVersion != null && VersionUtil.compare(clientVersion, version) >= 0;
         }
     }
 }
