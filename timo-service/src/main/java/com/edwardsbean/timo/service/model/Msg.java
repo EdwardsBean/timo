@@ -32,4 +32,13 @@ public class Msg {
     }
 
     protected Object returnData;
+
+    @Override
+    public String toString() {
+        return "Msg{" +
+                "code='" + code + '\'' +
+                ", msg='" + msg + '\'' +
+                ", returnData=" + returnData +
+                '}';
+    }
 }
