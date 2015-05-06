@@ -9,11 +9,11 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Created by edwardsbean on 2015/5/2 0002.
+ * 自动路由版本号匹配
+ * @author edwardsbean
+ * @date 2015/5/2 0002.
  */
 public class VersionRequestCondition implements RequestCondition<VersionRequestCondition> {
-    public static final String VERSION = "version";
-    public static final String VERSION_PREFIX = "v";
     private final VersionExpression versionExpression;
 
     public VersionExpression getVersionExpression() {
@@ -72,7 +72,7 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
 
         public String delPrefix(String version) {
             String result = StringUtils.lowerCase(version);
-            if (result != null && result.startsWith(VERSION_PREFIX)) {
+            if (result != null && result.startsWith(Conventions.VERSION_PREFIX)) {
                 result = result.substring(1, version.length());
             }
             return result;
