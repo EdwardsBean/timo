@@ -20,13 +20,13 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
     }
 
     /**
-     * Type level和Method level的注解，要用谁的值或者合并。对于只有Method level的，则无视
+     * Type level和Method level的注解，Method level优先
      * @param other
      * @return
      */
     @Override
     public VersionRequestCondition combine(VersionRequestCondition other) {
-        return this;
+        return other.versionExpression.version != null ? other : this;
     }
 
     /**
@@ -75,7 +75,7 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
         public boolean match(HttpServletRequest request) {
             String clientVersion = request.getHeader(Conventions.DIVIDE_VERSION);
             clientVersion = delPrefix(clientVersion);
-            return clientVersion != null && VersionUtil.compare(clientVersion,version) >= 0;
+            return clientVersion != null && VersionUtil.compare(clientVersion, version) >= 0;
         }
 
         public String getVersion() {

@@ -1,6 +1,7 @@
 package com.edwardsbean.timo.service.version;
 
 import com.edwardsbean.timo.common.Conventions;
+import com.edwardsbean.timo.service.exception.UnsupportedVersionException;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.UnsatisfiedServletRequestParameterException;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.condition.NameValueExpression;
@@ -33,6 +35,32 @@ public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMa
     protected RequestCondition<?> getCustomMethodCondition(Method method) {
         VersionSupport versionSupport = AnnotationUtils.findAnnotation(method, VersionSupport.class);
         return (versionSupport != null) ? new VersionRequestCondition(versionSupport.value()) : null;
+    }
+
+    @Override
+    protected RequestCondition<?> getCustomTypeCondition(Class<?> handlerType) {
+        VersionSupport versionSupport = AnnotationUtils.findAnnotation(handlerType, VersionSupport.class);
+        return (versionSupport != null) ? new VersionRequestCondition(versionSupport.value()) : null;
+    }
+
+    @Override
+    protected RequestMappingInfo getMappingForMethod(Method method, Class<?> handlerType) {
+        RequestMappingInfo info = null;
+        RequestMapping methodAnnotation = AnnotationUtils.findAnnotation(method, RequestMapping.class);
+        if (methodAnnotation != null) {
+            RequestCondition<?> methodCondition = getCustomMethodCondition(method);
+            info = createRequestMappingInfo(methodAnnotation, methodCondition);
+            RequestCondition<?> typeCondition = getCustomTypeCondition(handlerType);
+            RequestMapping typeAnnotation = AnnotationUtils.findAnnotation(handlerType, RequestMapping.class);
+            if (typeAnnotation != null) {
+                info = createRequestMappingInfo(typeAnnotation, typeCondition).combine(info);
+            }
+            //如果没有method level的@VersionSupport,则使用type level的@VersionSupport
+            else if (typeCondition != null && methodCondition == null) {
+                info = createRequestMappingInfo(methodAnnotation, typeCondition);
+            }
+        }
+        return info;
     }
 
     @Override
@@ -125,6 +153,8 @@ public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMa
                         versions.add(new VersionInfo(version, getHandlerMethods().get(info)));
                     }
                 }
+            } else {
+                throw new UnsupportedVersionException(clientVersion);
             }
             //对MappingInfo根据版本号排序，取版本号最大，并拿到methodHandler
             if (!versions.isEmpty()) {
