@@ -50,12 +50,11 @@ public class Conventions {
      */
     public static final String MODE_PROD             = "prod";
     /**
-     * 版本号
-     */
-    public static final String VERSION              = "version";
-    /**
      * 版本号前缀
      */
     public static final String VERSION_PREFIX       = "v";
-
+    /*
+     * HTTP头中存放客户端版本号
+     */
+    public static final String VERSION              = "VERSION";
 }

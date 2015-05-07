@@ -4,7 +4,6 @@ import com.edwardsbean.timo.common.Conventions;
 import com.edwardsbean.timo.common.VersionUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.servlet.mvc.condition.RequestCondition;
-import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,10 +14,6 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class VersionRequestCondition implements RequestCondition<VersionRequestCondition> {
     private final VersionExpression versionExpression;
-
-    public VersionExpression getVersionExpression() {
-        return versionExpression;
-    }
 
     public VersionRequestCondition(String version) {
         this.versionExpression = new VersionExpression(version);
@@ -59,12 +54,12 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
         return VersionUtil.compare(other.versionExpression.version, this.versionExpression.version);
     }
 
+    public VersionExpression getVersionExpression() {
+        return versionExpression;
+    }
+
     static class VersionExpression {
         private final String version;
-
-        public String getVersion() {
-            return version;
-        }
 
         public VersionExpression(String version) {
             this.version = delPrefix(version);
@@ -80,7 +75,25 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
         public boolean match(HttpServletRequest request) {
             String clientVersion = request.getHeader(Conventions.VERSION);
             clientVersion = delPrefix(clientVersion);
-            return clientVersion != null && VersionUtil.compare(clientVersion, version) >= 0;
+            return clientVersion != null && VersionUtil.compare(clientVersion,version) >= 0;
         }
+
+        public String getVersion() {
+            return version;
+        }
+
+        @Override
+        public String toString() {
+            return "VersionExpression{" +
+                    "version='" + version + '\'' +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "VersionRequestCondition{" +
+                "versionExpression=" + versionExpression +
+                '}';
     }
 }

@@ -29,13 +29,11 @@ import java.util.*;
  * @date 2015/5/2 0002.
  */
 public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
-
     @Override
     protected RequestCondition<?> getCustomMethodCondition(Method method) {
         VersionSupport versionSupport = AnnotationUtils.findAnnotation(method, VersionSupport.class);
         return (versionSupport != null) ? new VersionRequestCondition(versionSupport.value()) : null;
     }
-
 
     @Override
     protected HandlerMethod handleNoMatch(Set<RequestMappingInfo> requestMappingInfos, String lookupPath, HttpServletRequest request) throws ServletException {
