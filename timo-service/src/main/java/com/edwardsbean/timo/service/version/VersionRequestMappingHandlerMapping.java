@@ -114,7 +114,7 @@ public class VersionRequestMappingHandlerMapping extends RequestMappingHandlerMa
 
             //request中没有带version头,在lookupHandlerMethod时没找到不带版本号的controller
             //所以自动在带版本号的controller中选取最新版本controller
-            String clientVersion = request.getHeader(Conventions.VERSION);
+            String clientVersion = request.getHeader(Conventions.DIVIDE_VERSION);
             List<VersionInfo> versions = new ArrayList<VersionInfo>();
             if (clientVersion == null) {
                 for (RequestMappingInfo info : patternAndMethodMatches) {

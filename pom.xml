@@ -247,14 +247,14 @@
         </plugins>
     </build>
 
-    <!--<distributionManagement>-->
-        <!--<snapshotRepository>-->
-            <!--<id>sonatype-nexus-snapshots</id>-->
-            <!--<url>http://172.17.156.61:8081/nexus/content/repositories/snapshots</url>-->
-        <!--</snapshotRepository>-->
-        <!--<repository>-->
-            <!--<id>sonatype-nexus-staging</id>-->
-            <!--<url>http://172.17.156.61:8081/nexus/content/repositories/releases</url>-->
-        <!--</repository>-->
-    <!--</distributionManagement>-->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>xpspeed-nexus-snapshots</id>
+            <url>http://192.168.10.13:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>xpspeed-nexus-staging</id>
+            <url>http://192.168.10.13:8081/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
 </project>

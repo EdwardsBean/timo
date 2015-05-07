@@ -53,8 +53,28 @@ public class Conventions {
      * 版本号前缀
      */
     public static final String VERSION_PREFIX       = "v";
-    /*
+    /**
      * HTTP头中存放客户端版本号
      */
-    public static final String VERSION              = "VERSION";
+    public static final String DIVIDE_VERSION              = "DivideVersion";
+    /**
+     * 产品ID
+     */
+    public static final String PID                  = "PID";
+    /**
+     * 手机型号
+     */
+    public static final String SUP_PHONE            = "SupPhone";
+    /**
+     * 手机版本号
+     */
+    public static final String SUP_FIRM             = "SupFirm";
+    /**
+     * 手机IMEI号
+     */
+    public static final String IMEI                 = "IMEI";
+    /**
+     * IMSI
+     */
+    public static final String IMSI                 = "IMSI";
 }

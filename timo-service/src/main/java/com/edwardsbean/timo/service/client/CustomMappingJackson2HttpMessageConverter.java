@@ -32,8 +32,9 @@ import java.util.List;
 
 
 /**
- * 定制的MappingJackson2HttpMessageConverter，除了UTF-8，还可以支持GBK等其他编码
- *
+ * 定制的MappingJackson2HttpMessageConverter，支持GBK等其他编码,支持Header注入解析后的Json对象
+ * @author edwardsbean
+ * @date 2015/5/2 0002.
  */
 public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2HttpMessageConverter {
     private ObjectMapper objectMapper = JsonUtil.createObjectMapper();
@@ -63,17 +64,37 @@ public class CustomMappingJackson2HttpMessageConverter extends MappingJackson2Ht
     public Object read(Type type, Class<?> contextClass, HttpInputMessage inputMessage)
             throws IOException, HttpMessageNotReadableException {
         JavaType javaType = getJavaType(type, contextClass);
+        Class paramClass = javaType.getRawClass();
         Object object = readJavaType(javaType, inputMessage);
         //TODO:添加更多Header转换
-        String version = inputMessage.getHeaders().getFirst(Conventions.VERSION);
-        if (version != null) {
-            Field versionField = ReflectionUtils.findField(javaType.getRawClass(), "version");
-            if (versionField != null) {
-                ReflectionUtils.makeAccessible(versionField);
-                ReflectionUtils.setField(versionField, object, "1.0.0");
+        String divideVersion = inputMessage.getHeaders().getFirst(Conventions.DIVIDE_VERSION);
+        String PID = inputMessage.getHeaders().getFirst(Conventions.PID);
+        String supPhone = inputMessage.getHeaders().getFirst(Conventions.SUP_PHONE);
+        String supFirm = inputMessage.getHeaders().getFirst(Conventions.SUP_FIRM);
+        String IMEI = inputMessage.getHeaders().getFirst(Conventions.IMEI);
+        String IMSI = inputMessage.getHeaders().getFirst(Conventions.IMSI);
+        try {
+            setField(object, paramClass, "divideVersion", divideVersion);
+            setField(object, paramClass, "pid", PID);
+            setField(object, paramClass, "supFirm", supFirm);
+            setField(object, paramClass, "supPhone", supPhone);
+            setField(object, paramClass, "imei", IMEI);
+            setField(object, paramClass, "imsi", IMSI);
+        } catch (Exception e) {
+            throw new HttpMessageNotReadableException("将Header注入Json对象失败", e);
+        }
+
+        return object;
+    }
+
+    private void setField(Object object, Class<?> clazz, String fieldName, String value) {
+        if (value != null) {
+            Field field = ReflectionUtils.findField(clazz, fieldName);
+            if (field != null) {
+                ReflectionUtils.makeAccessible(field);
+                ReflectionUtils.setField(field, object, value);
             }
         }
-        return object;
     }
 
     @Override

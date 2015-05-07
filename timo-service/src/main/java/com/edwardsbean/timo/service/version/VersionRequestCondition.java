@@ -73,7 +73,7 @@ public class VersionRequestCondition implements RequestCondition<VersionRequestC
             return result;
         }
         public boolean match(HttpServletRequest request) {
-            String clientVersion = request.getHeader(Conventions.VERSION);
+            String clientVersion = request.getHeader(Conventions.DIVIDE_VERSION);
             clientVersion = delPrefix(clientVersion);
             return clientVersion != null && VersionUtil.compare(clientVersion,version) >= 0;
         }
