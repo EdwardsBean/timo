@@ -1,6 +1,7 @@
 package com.edwardsbean.timo.service.exception;
 
 import com.edwardsbean.timo.service.model.Msg;
+import com.edwardsbean.timo.service.model.MsgCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
@@ -37,9 +38,7 @@ public class CustomHandlerExceptionResolver extends DefaultHandlerExceptionResol
         try {
             writer = response.getWriter();
             ObjectMapper mapper = new ObjectMapper();
-            Msg msgCode = new Msg();
-            msgCode.setCode("1");
-            msgCode.setMsg(ex.getLocalizedMessage());
+            Msg msgCode = new Msg(MsgCode.SYSTEM_ERROR.getCode(), ex.getLocalizedMessage());
             String callback = request.getParameter("callback");
             String json = mapper.writeValueAsString(msgCode);
             if (callback != null) {

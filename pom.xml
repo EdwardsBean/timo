@@ -7,7 +7,7 @@
     <groupId>com.edwardsbean.timo</groupId>
     <artifactId>timo-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <modules>
         <module>timo-db</module>
         <module>timo-common</module>
@@ -17,11 +17,28 @@
         <module>timo-swagger</module>
     </modules>
     <properties>
-        <project.version>1.0-SNAPSHOT</project.version>
+        <project.version>1.1-SNAPSHOT</project.version>
         <spring.version>4.1.1.RELEASE</spring.version>
         <springsecurity.version>4.0.0.RELEASE</springsecurity.version>
         <jackson.version>2.4.0</jackson.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>xpspeed-nexus</id>
+            <url>http://192.168.10.13:8081/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>xpspeed-nexus-snapshots</id>
+            <url>http://192.168.10.13:8081/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>xpspeed-nexus-staging</id>
+            <url>http://192.168.10.13:8081/nexus/content/repositories/releases</url>
+        </repository>
+    </distributionManagement>
 
     <dependencyManagement>
         <dependencies>
@@ -247,14 +264,5 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>xpspeed-nexus-snapshots</id>
-            <url>http://192.168.10.13:8081/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>xpspeed-nexus-staging</id>
-            <url>http://192.168.10.13:8081/nexus/content/repositories/releases</url>
-        </repository>
-    </distributionManagement>
+
 </project>

@@ -15,5 +15,6 @@ dist
 /RUNNING_PID
 /.settings
 dependency
+pom.xml.versionsBackup
 
     

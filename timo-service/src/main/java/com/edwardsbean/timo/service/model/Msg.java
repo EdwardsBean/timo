@@ -4,8 +4,9 @@ package com.edwardsbean.timo.service.model;
  * Created by edwardsbean on 14-10-29.
  */
 public class Msg {
-    private String code = "0";
-    private String msg = "success";
+    private String code = MsgCode.SUCCESS.getCode();
+    private String msg = "";
+    protected Object returnData;
 
     public String getCode() {
         return code;
@@ -31,7 +32,15 @@ public class Msg {
         this.returnData = returnData;
     }
 
-    protected Object returnData;
+
+    public Msg(String code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public Msg(Object returnData) {
+        this.returnData = returnData;
+    }
 
     @Override
     public String toString() {
