@@ -42,6 +42,9 @@ public class Msg {
         this.returnData = returnData;
     }
 
+    public Msg() {
+    }
+
     @Override
     public String toString() {
         return "Msg{" +

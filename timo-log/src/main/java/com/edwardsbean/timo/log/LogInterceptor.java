@@ -17,10 +17,10 @@ import javax.servlet.http.HttpServletResponse;
  * Created by shicongyu01_91 on 2015/4/7.
  */
 public class LogInterceptor extends HandlerInterceptorAdapter {
-    private final static Logger log = LoggerFactory.getLogger(LogInterceptor.class.getName());
-    private boolean                        printArguments = true;
-    private boolean                        printResults   = true;
-    private NamedThreadLocal<Long>  startTimeThreadLocal =
+    protected final static Logger log = LoggerFactory.getLogger(LogInterceptor.class.getName());
+    protected boolean                        printArguments = true;
+    protected boolean                        printResults   = true;
+    protected NamedThreadLocal<Long>  startTimeThreadLocal =
             new NamedThreadLocal<Long>("StopWatch-StartTime");
 
     @Override
@@ -54,14 +54,14 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
     /**
      * 处理被CGLIB增强过的类名，例如：CustomerServicesController$$EnhancerByCGLIB$$339ba907
      */
-    private String getRealClassName(String className) {
+    protected String getRealClassName(String className) {
         if (StringUtils.contains(className, "$$EnhancerByCGLIB")) {
             return StringUtils.split(className, "$$")[0];
         }
         return className;
     }
 
-    private String getResultFlag(HttpServletResponse response, Exception ex) {
+    protected String getResultFlag(HttpServletResponse response, Exception ex) {
         String result = ex == null ? "Y" : "N";
         if (StringUtils.equals("Y", result) && response != null
                 && response.getStatus() >= HttpServletResponse.SC_BAD_REQUEST) {
@@ -70,7 +70,7 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
         return result;
     }
 
-    private String getResponseStatus(HttpServletResponse response) {
+    protected String getResponseStatus(HttpServletResponse response) {
         String status = "-";
         if (response != null) {
             status = Integer.toString(response.getStatus());
@@ -78,7 +78,7 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
         return status;
     }
 
-    private Object getArgumentsString() {
+    protected Object getArgumentsString() {
         if (printArguments) {
             return StringUtils.join(WebDigestLogAdditionalInfoUtil.getParameters(), ",");
         } else {
@@ -86,7 +86,7 @@ public class LogInterceptor extends HandlerInterceptorAdapter {
         }
     }
 
-    private Object getResultsString() {
+    protected Object getResultsString() {
         if (printResults) {
             return StringUtils.join(WebDigestLogAdditionalInfoUtil.getResults(), ",");
         } else {

@@ -19,11 +19,11 @@ import java.io.PrintWriter;
 public class CustomHandlerExceptionResolver extends DefaultHandlerExceptionResolver {
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-        if (!(request.getHeader("accept").indexOf("application/json") > -1 || (request.getHeader("X-Requested-With") != null && request.getHeader("X-Requested-With").indexOf("XMLHttpRequest") > -1) || request
+        if (!(request.getHeader("accept") != null && request.getHeader("accept").indexOf("application/json") > -1 || (request.getHeader("X-Requested-With") != null && request.getHeader("X-Requested-With").indexOf("XMLHttpRequest") > -1) || request
                 .getParameter("callback") != null)) {
             //非Ajax请求
             //TODO:添加异常处理
-//            super.resolveException(request, response, handler, ex);
+            super.resolveException(request, response, handler, ex);
             writeJsonResult(response, ex, false, request);
 
         } else {

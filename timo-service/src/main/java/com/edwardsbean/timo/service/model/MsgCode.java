@@ -7,6 +7,7 @@ package com.edwardsbean.timo.service.model;
 public enum MsgCode {
     SUCCESS("0", "成功"),
     NOIMP("-1", "接口未实现"),
+    PARAM_ERROR("3", "参数错误"),
     SYSTEM_ERROR("999", "系统发生内部错误");
 
 
