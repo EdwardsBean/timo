@@ -3,6 +3,8 @@ package com.edwardsbean.timo.service.exception;
 import com.edwardsbean.timo.service.model.Msg;
 import com.edwardsbean.timo.service.model.MsgCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver;
 
@@ -17,6 +19,8 @@ import java.io.PrintWriter;
  * @date 14-10-29.
  */
 public class CustomHandlerExceptionResolver extends DefaultHandlerExceptionResolver {
+    private static Logger logger = LoggerFactory.getLogger(CustomHandlerExceptionResolver.class);
+
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         if (!(request.getHeader("accept") != null && request.getHeader("accept").indexOf("application/json") > -1 || (request.getHeader("X-Requested-With") != null && request.getHeader("X-Requested-With").indexOf("XMLHttpRequest") > -1) || request
@@ -49,8 +53,9 @@ public class CustomHandlerExceptionResolver extends DefaultHandlerExceptionResol
             }
             writer.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Global exception handler error:",e);
         } finally {
+            logger.error("Global exception log:",ex);
             if (writer != null) {
                 writer.close();
             }
